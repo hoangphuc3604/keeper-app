@@ -1,0 +1,14 @@
+$main-color: #f5ba13;
+
+.header {
+  background-color: $main-color;
+  margin: auto -16px;
+  padding: 16px 32px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.3);
+
+  h1 {
+    color: #fff;
+    font-family: "McLaren", cursive;
+    font-weight: 200;
+  }
+}
