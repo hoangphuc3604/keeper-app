@@ -5,7 +5,7 @@ function Header() {
   return (
     <header className={styles.header}>
       <h1>Keeper</h1>
-      <button onClick={handleLogClick}>{user ? "Logout" : "Login"}</button>
+      <button>Login</button>
     </header>
   );
 }

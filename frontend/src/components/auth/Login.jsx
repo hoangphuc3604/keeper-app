@@ -1,14 +1,33 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { clearMessage, user_login } from "./../../store/reducers/authReducer";
+import { toast } from "react-hot-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { error, success } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(user_login({ email, password }));
   };
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message);
+    }
+    if (success) {
+      toast.success(success.message);
+      navigate("/");
+    }
+    dispatch(clearMessage());
+  }, [error, success]);
 
   const handleGoogleLogin = async () => {
     window.open("http://localhost:5000/auth/google", "_self");

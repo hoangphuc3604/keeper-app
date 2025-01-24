@@ -1,39 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { clearMessage, user_register } from "../../store/reducers/authReducer";
+import { toast } from "react-hot-toast";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const { user, loading, success, error } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email || !password || !confirmPassword) {
-      setError("Please fill in all fields");
-    } else if (password !== confirmPassword) {
-      setError("Passwords do not match");
-    } else {
-      setError("");
-      console.log("Email:", email);
-      console.log("Password:", password);
-    }
+    dispatch(user_register({ email, password }));
   };
+
+  useEffect(() => {
+    if (success) {
+      toast.success(success.message);
+      navigate("/");
+    }
+    if (error) {
+      toast.error(error.message);
+    }
+    dispatch(clearMessage());
+  }, [success, error]);
 
   const handleGoogleRegister = () => {
     console.log("Google register clicked");
-  };
-
-  const handleFacebookRegister = () => {
-    console.log("Facebook register clicked");
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="card p-4" style={{ maxWidth: "400px", width: "100%" }}>
         <h2 className="text-center mb-4">Register</h2>
-        {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label">
