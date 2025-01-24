@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearMessage, user_register } from "../../store/reducers/authReducer";
 import { toast } from "react-hot-toast";
 
@@ -32,6 +32,10 @@ const Register = () => {
 
   const handleGoogleRegister = () => {
     console.log("Google register clicked");
+  };
+
+  const handleFacebookRegister = () => {
+    console.log("Facebook register clicked");
   };
 
   return (

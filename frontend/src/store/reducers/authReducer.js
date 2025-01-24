@@ -56,7 +56,7 @@ export const authReducer = createSlice({
     },
     clearMessage: (state) => {
       state.error = null;
-      state.sucess = null;
+      state.success = null;
     },
   },
   extraReducers: (builder) => {
