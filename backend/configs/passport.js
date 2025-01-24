@@ -9,6 +9,7 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
+      scope: ["email", "profile"],
     },
     function (accessToken, refreshToken, profile, done) {
       User.findOne({ googleId: profile.id })
@@ -42,3 +43,5 @@ passport.deserializeUser((id, done) => {
     .then((user) => done(null, user))
     .catch((err) => done(err, null));
 });
+
+module.exports = passport;

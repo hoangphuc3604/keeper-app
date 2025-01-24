@@ -1,21 +1,28 @@
 const Idea = require("../models/idea.m");
+const mongoose = require("mongoose");
 
 module.exports = {
-  // @route   GET api/ideas
-  // @desc    Lấy tất cả ý tưởng
-  // @access  Public
   getIdeas: async (req, res) => {
     try {
-      const ideas = await Idea.find().sort({ date: -1 });
+      const ideas = await Idea.find()
+        .sort({ createdAt: -1 })
+        .populate("author");
       res.json(ideas);
     } catch (err) {
       console.error(err.message);
       res.status(500).send("Lỗi server");
     }
   },
-  // @route   POST api/ideas
-  // @desc    Thêm ý tưởng
-  // @access  Public
+  getByAuthor: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const ideas = await Idea.find({ author: id });
+      res.json(ideas);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Lỗi server");
+    }
+  },
   addIdea: async (req, res) => {
     const { title, description, author } = req.body;
     try {
@@ -31,9 +38,6 @@ module.exports = {
       res.status(500).send("Lỗi server");
     }
   },
-  // @route   PUT api/ideas/:id
-  // @desc    Cập nhật ý tưởng
-  // @access  Public
   updateIdea: async (req, res) => {
     const { title, description, author } = req.body;
     const ideaFields = {};
@@ -43,7 +47,7 @@ module.exports = {
     try {
       let idea = await Idea.findById(req.params.id);
       if (!idea) return res.status(404).json({ msg: "Ý tưởng không tìm thấy" });
-      idea = await Idea.findByIdAndUpdate(
+      idea = await Idea.findByIdAndUpcreatedAt(
         req.params.id,
         { $set: ideaFields },
         { new: true }
@@ -54,9 +58,6 @@ module.exports = {
       res.status(500).send("Lỗi server");
     }
   },
-  // @route   DELETE api/ideas/:id
-  // @desc    Xóa ý tưởng
-  // @access  Public
   deleteIdea: async (req, res) => {
     try {
       let idea = await Idea.findById(req.params.id);

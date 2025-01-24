@@ -2,13 +2,31 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const passport = require("passport");
+const passportConfig = require("./configs/passport");
 require("dotenv").config();
+const expressSession = require("express-session");
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:3000",
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+};
+
+app.use(
+  expressSession({
+    secret: process.env.COOKIE_KEY,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+  })
+);
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -24,8 +42,8 @@ app.get("/", (req, res) => {
 
 const ideaRoutes = require("./routes/idea.r");
 const authRoutes = require("./routes/auth.r");
-app.use("/api/ideas", ideaRoutes);
-app.use("/api/auth", authRoutes);
+app.use("/ideas", ideaRoutes);
+app.use("/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
