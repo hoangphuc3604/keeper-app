@@ -8,6 +8,14 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
     <App />
-    <Toaster />
+    <Toaster
+      toastOptions={{
+        position: "top-right",
+        style: {
+          background: "#283046",
+          color: "white",
+        },
+      }}
+    />
   </BrowserRouter>
 );

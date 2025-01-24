@@ -1,53 +1,23 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from "react-router-dom";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError("Please enter both email and password");
-    } else {
-      setError("");
-      console.log("Email:", email);
-      console.log("Password:", password);
-    }
   };
 
-  const clientId =
-    "194488984899-skhdjuip4me22bjvbkmmqmi2rsib94nm.apps.googleusercontent.com";
-
-  const onSuccess = async (response) => {
-    const idToken = response.credential;
-
-    try {
-      const backendResponse = await axios.post(
-        "http://localhost:4000/auth/google",
-        {
-          token: idToken,
-        }
-      );
-      console.log("Backend Response:", backendResponse.data);
-    } catch (error) {
-      console.error("Error sending token to backend:", error);
-    }
-  };
-
-  const onFailure = (response) => {
-    console.log("Google login failed. Response:", response);
+  const handleGoogleLogin = async () => {
+    window.open("http://localhost:5000/auth/google", "_self");
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="card p-4" style={{ maxWidth: "400px", width: "100%" }}>
         <h2 className="text-center mb-4">Login</h2>
-        {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label">
@@ -80,11 +50,17 @@ const Login = () => {
           </button>
         </form>
         <div className="d-flex justify-content-center mb-3">
-          <GoogleOAuthProvider clientId={clientId}>
-            <div>
-              <GoogleLogin onSuccess={onSuccess} onError={onFailure} />
-            </div>
-          </GoogleOAuthProvider>
+          <button
+            onClick={handleGoogleLogin}
+            className="btn btn-outline-primary d-flex align-items-center"
+          >
+            <img
+              src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+              alt="Google Logo"
+              style={{ width: "20px", height: "20px", marginRight: "10px" }}
+            />
+            Đăng nhập với Google
+          </button>
         </div>
         <p className="text-center">
           Don't have an account? <Link to="/register">Sign up here</Link>
