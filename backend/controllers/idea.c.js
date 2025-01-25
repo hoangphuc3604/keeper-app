@@ -1,72 +1,73 @@
 const Idea = require("../models/idea.m");
-const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 module.exports = {
   getIdeas: async (req, res) => {
     try {
-      const ideas = await Idea.find()
-        .sort({ createdAt: -1 })
-        .populate("author");
+      const token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      if (!decoded) {
+        return res.status(401).json({ message: "Unauthorized" });
+      } else {
+        if (!decoded.id) {
+          return res.status(401).json({ message: "Unauthorized" });
+        } else {
+          var ideas = await Idea.find({ author: decoded.id });
+        }
+      }
+
       res.json(ideas);
     } catch (err) {
       console.error(err.message);
-      res.status(500).send("Lỗi server");
-    }
-  },
-  getByAuthor: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const ideas = await Idea.find({ author: id });
-      res.json(ideas);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Lỗi server");
+      res.status(500).send("Error in getting ideas");
     }
   },
   addIdea: async (req, res) => {
-    const { title, description, author } = req.body;
     try {
-      const newIdea = new Idea({
-        title,
-        description,
-        author,
-      });
-      const idea = await newIdea.save();
-      res.json(idea);
+      const token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      if (!decoded) {
+        return res.status(401).json({ message: "Unauthorized" });
+      } else {
+        if (!decoded.id) {
+          return res.status(401).json({ message: "Unauthorized" });
+        } else {
+          const { title, content } = req.body;
+          const newIdea = new Idea({
+            title,
+            content,
+            author: decoded.id,
+          });
+          await newIdea.save();
+
+          res.json({ message: "Idea Added Successfully" });
+        }
+      }
     } catch (err) {
       console.error(err.message);
-      res.status(500).send("Lỗi server");
-    }
-  },
-  updateIdea: async (req, res) => {
-    const { title, description, author } = req.body;
-    const ideaFields = {};
-    if (title) ideaFields.title = title;
-    if (description) ideaFields.description = description;
-    if (author) ideaFields.author = author;
-    try {
-      let idea = await Idea.findById(req.params.id);
-      if (!idea) return res.status(404).json({ msg: "Ý tưởng không tìm thấy" });
-      idea = await Idea.findByIdAndUpcreatedAt(
-        req.params.id,
-        { $set: ideaFields },
-        { new: true }
-      );
-      res.json(idea);
-    } catch (err) {
-      console.error(err.message);
-      res.status(500).send("Lỗi server");
+      res.status(500).json({ message: "Error in Saving" });
     }
   },
   deleteIdea: async (req, res) => {
     try {
-      let idea = await Idea.findById(req.params.id);
-      if (!idea) return res.status(404).json({ msg: "Ý tưởng không tìm thấy" });
-      await Idea.findByIdAndRemove(req.params.id);
-      res.json({ msg: "Đã xóa ý tưởng" });
+      const token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      if (!decoded) {
+        return res.status(401).json({ message: "Unauthorized" });
+      } else {
+        if (!decoded.id) {
+          return res.status(401).json({ message: "Unauthorized" });
+        } else {
+          await Idea.findByIdAndDelete(req.params.id);
+          res.json({ message: "Idea Deleted Successfully" });
+        }
+      }
     } catch (err) {
       console.error(err.message);
-      res.status(500).send("Lỗi server");
+      res.status(500).json({ message: "Error in Deleting" });
     }
   },
 };

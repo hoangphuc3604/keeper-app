@@ -5,7 +5,11 @@ const jwt = require("jsonwebtoken");
 module.exports = {
   me: async (req, res) => {
     try {
-      const token = req.header("Authorization").replace("Bearer ", "");
+      let token = req.header("Authorization");
+      if (!token) {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+      token = token.replace("Bearer ", "");
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       const user = await User.findOne({ _id: decoded.id });
@@ -24,15 +28,17 @@ module.exports = {
       console.log("Login request:", req.body);
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
-        return res.status(404).json({ message: "Email không tồn tại" });
+        return res.status(404).json({ message: "Email not found" });
       }
       const match = await bcrypt.compare(req.body.password, user.password);
       if (!match) {
-        return res.status(400).json({ message: "Mật khẩu không đúng" });
+        return res.status(400).json({ message: "Password is incorrect" });
       }
 
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-      res.status(200).json({ message: "Đăng nhập thành công", token });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "1d",
+      });
+      res.status(200).json({ message: "Login successfully", token });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -41,7 +47,7 @@ module.exports = {
     try {
       const user = await User.findOne({ email: req.body.email });
       if (user) {
-        return res.status(400).json({ message: "Email đã tồn tại" });
+        return res.status(400).json({ message: "Email already exists" });
       }
 
       const newUser = new User(req.body);
@@ -50,7 +56,7 @@ module.exports = {
 
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
 
-      res.status(201).json({ message: "Đăng ký thành công", token });
+      res.status(201).json({ message: "User registered successfully", token });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
