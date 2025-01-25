@@ -30,7 +30,11 @@ export const get_user_info = createAsyncThunk(
   "auth/get_user_info",
   async (_, { fulfillWithValue, rejectWithValue }) => {
     try {
-      const { data } = await api.get("/auth/me");
+      const { data } = await api.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       return fulfillWithValue(data);
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -41,14 +45,14 @@ export const get_user_info = createAsyncThunk(
 export const authReducer = createSlice({
   name: "auth",
   initialState: {
-    user: {},
+    user: null,
     loading: false,
     success: null,
     error: null,
   },
   reducers: {
     logout: (state) => {
-      state.user = {};
+      state.user = null;
       state.loading = false;
       state.error = null;
       state.success = null;
@@ -77,7 +81,7 @@ export const authReducer = createSlice({
     });
     builder.addCase(user_register.fulfilled, (state, { payload }) => {
       state.loading = false;
-      state.sucess = payload;
+      state.success = payload;
     });
     builder.addCase(user_register.rejected, (state, { payload }) => {
       state.error = payload;
