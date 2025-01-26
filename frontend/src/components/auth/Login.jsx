@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { clearMessage, user_login } from "./../../store/reducers/authReducer";
+import {
+  clearMessage,
+  get_user_info,
+  user_login,
+} from "./../../store/reducers/authReducer";
 import { toast } from "react-hot-toast";
 
 const Login = () => {
@@ -28,6 +32,16 @@ const Login = () => {
     }
     dispatch(clearMessage());
   }, [error, success]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("token", token);
+      dispatch(get_user_info());
+      navigate("/");
+    }
+  }, [dispatch, navigate]);
 
   const handleGoogleLogin = async () => {
     window.open("http://localhost:5000/auth/google", "_self");
@@ -83,6 +97,9 @@ const Login = () => {
         </div>
         <p className="text-center">
           Don't have an account? <Link to="/register">Sign up here</Link>
+        </p>
+        <p className="text-center">
+          Don't want to sign in? <Link to="/">Go back here</Link>
         </p>
       </div>
     </div>

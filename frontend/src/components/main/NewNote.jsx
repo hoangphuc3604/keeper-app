@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./NewNote.module.scss";
+import toast from "react-hot-toast";
 
 function NewNote({ onAdd }) {
   const [note, setNote] = useState({ title: "", content: "" });
@@ -13,6 +14,10 @@ function NewNote({ onAdd }) {
   }
 
   function submitNote() {
+    if (!note.title || !note.content) {
+      toast.error("Please fill in both fields");
+      return;
+    }
     onAdd(note);
     setNote({ title: "", content: "" });
   }
